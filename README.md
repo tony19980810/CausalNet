@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/LICENSE-MIT-green)](https://github.com/tony19980810/CausalNet/blob/main/LICENSE)
 
-[comment]: <> ([![arXiv]&#40;https://img.shields.io/badge/arXiv-2504.09881-red&#41;]&#40;https://arxiv.org/abs/2504.09881&#41;)
+[![arXiv](https://img.shields.io/badge/arXiv-2508.06640-red)](https://arxiv.org/abs/2508.06640)
 
 
 This is the official repository for the paper "Rethinking Key-frame-based Micro-expression Recognition: A Robust and Accurate Framework Against Key-frame Errors" 
@@ -16,9 +16,9 @@ Micro-expression recognition (MER) is a highly challenging task in affective com
 
 ![image](image/Main.png)
 
-[comment]: <> (## 📄 Paper)
+## 📄 Paper
 
-[comment]: <> (- **Main Paper:** [link]&#40;&#41;)
+- **Main Paper:** [link](https://arxiv.org/abs/2508.06640)
 
 ## 🛠️Setup
 
@@ -71,28 +71,20 @@ python eval.py
 
 The framework of the code are based on the excellent work of [HTNet](https://github.com/wangzhifengharrison/HTNet). The experiments are built upon the excellent work of [OffTANet](https://github.com/ECNU-Cross-Innovation-Lab/PRICAI2021-Off-TANet), [MMNet](https://github.com/muse1998/MMNet), [SRMCL](https://github.com/pakchoi-php/SRMCL). The dataset is composed based on the excellent work of [CASME II](http://casme.psych.ac.cn/casme/c2), [SMIC](https://ieeexplore.ieee.org/document/6553717), [SAMM](https://ieeexplore.ieee.org/document/7492264), and [MMEW](https://github.com/benxianyeteam/MMEW-Dataset). We would like to express our gratitude for their open-source efforts.
 
-[comment]: <> (## 🔮Citation)
+## 🔮Citation
 
-[comment]: <> (If you find this repo useful for your research, please cite the paper)
+If you find this repo useful for your research, please cite the paper
 
-[comment]: <> (```)
+```
 
-[comment]: <> (@inproceedings{wang2025focus,)
+@misc{zhang2025rethinkingkeyframebasedmicroexpressionrecognition,
+      title={Rethinking Key-frame-based Micro-expression Recognition: A Robust and Accurate Framework Against Key-frame Errors}, 
+      author={Zheyuan Zhang and Weihao Tang and Hong Chen},
+      year={2025},
+      eprint={2508.06640},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2508.06640}, 
+}
 
-[comment]: <> (  title={Focus on Local: Finding Reliable Discriminative Regions for Visual Place Recognition},)
-
-[comment]: <> (  author={Wang, Changwei and Chen, Shunpeng and Song, Yukun and Xu, Rongtao and Zhang, Zherui and Zhang, Jiguang and Yang, Haoran and Zhang, Yu and Fu, Kexue and Du, Shide and others},)
-
-[comment]: <> (  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},)
-
-[comment]: <> (  volume={39},)
-
-[comment]: <> (  number={7},)
-
-[comment]: <> (  pages={7536--7544},)
-
-[comment]: <> (  year={2025})
-
-[comment]: <> (})
-
-[comment]: <> (```)
+```
