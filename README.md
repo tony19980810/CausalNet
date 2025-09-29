@@ -5,7 +5,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2508.06640-red)](https://arxiv.org/abs/2508.06640)
 
 
-This is the official repository for the paper "Rethinking Key-frame-based Micro-expression Recognition: A Robust and Accurate Framework Against Key-frame Errors" 
+[ICCV 25] Official repository for the paper "Rethinking Key-frame-based Micro-expression Recognition: A Robust and Accurate Framework Against Key-frame Errors" 
 
 
 
@@ -16,9 +16,13 @@ Micro-expression recognition (MER) is a highly challenging task in affective com
 
 ![image](image/Main.png)
 
-## 📄 Paper
+## 📄Paper
 
-- **Main Paper:** [link](https://arxiv.org/abs/2508.06640)
+Main Paper: [link](https://arxiv.org/abs/2508.06640)
+
+## ✨Video
+
+10-minute quick understanding: [link](https://www.youtube.com/watch?v=MVudRJXM8iE&t=1s)
 
 ## 🛠️Setup
 
@@ -34,9 +38,9 @@ pip install -r requirements.txt
 Please use the following code for training to find the optimal parameters:
 
 
-```python
+```bash
 python main_train_for_parameter_tuning.py
- ```
+```
 
 The prediction results and ground truth will be saved in text files, accompanied by a composite dataset result in XLSX format. All these files will be stored in a folder named after the parameter values within the ./results directory. Additionally, the overall results will be recorded in result_summary.txt for easy viewing.
 
@@ -88,3 +92,4 @@ If you find this repo useful for your research, please cite the paper
 }
 
 ```
+
