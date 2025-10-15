@@ -91,5 +91,14 @@ If you find this repo useful for your research, please cite the paper
       url={https://arxiv.org/abs/2508.06640}, 
 }
 
+@InProceedings{Zhang_2025_ICCV,
+    author    = {Zhang, Zheyuan and Tang, Weihao and Chen, Hong},
+    title     = {Rethinking Key-frame-based Micro-expression Recognition: A Robust and Accurate Framework Against Key-frame Errors},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+    month     = {October},
+    year      = {2025},
+    pages     = {12274-12283}
+}
+
 ```
 
