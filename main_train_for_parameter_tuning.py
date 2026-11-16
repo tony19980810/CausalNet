@@ -44,25 +44,29 @@ def confusionMatrix(gt, pred, show=False):
 
 
 def recognition_evaluation(final_gt, final_pred, show=False):
-    label_dict = {'negative': 0, 'positive': 1, 'surprise': 2}
-    f1_list = []
-    ar_list = []
-    try:
-        for emotion, emotion_index in label_dict.items():
-            gt_recog = [1 if x == emotion_index else 0 for x in final_gt]
-            pred_recog = [1 if x == emotion_index else 0 for x in final_pred]
-            try:
-                f1_recog, ar_recog = confusionMatrix(gt_recog, pred_recog)
-                f1_list.append(f1_recog)
-                ar_list.append(ar_recog)
-            except Exception as e:
-                pass
-        UF1 = np.mean(f1_list)
-        UAR = np.mean(ar_list)
-        return UF1, UAR
-    except:
-        return '', ''
+    labels = [0, 1, 2]
+    uf1 = f1_score(
+        final_gt,
+        final_pred,
+        labels=labels,
+        average='macro',
+        zero_division=0
+    )
+    uar = recall_score(
+        final_gt,
+        final_pred,
+        labels=labels,
+        average='macro',
+        zero_division=0
+    )
+    return uf1, uar
 
+
+
+def format_metrics(ground_truth, predictions):
+    uf1, uar = recognition_evaluation(ground_truth, predictions)
+    acc = accuracy_score(ground_truth, predictions)
+    return f'ACC={acc:.4f}, UF1={uf1:.4f}, UAR={uar:.4f}\n'
 
 
 def whole_face_block_coordinates():
@@ -151,8 +155,8 @@ def main(config):
     layer1, layer2, layer3, and gammas are parameters that need to be tuned.
     '''
     layers3 = [7,8, 9, 10]
-    layers2 = [3, 2]
-    layers1 = [3, 2]
+    layers2 = [3, 2,4]
+    layers1 = [3, 2,4]
     gammas = [0.3,0.4,0.5]
     for layer1 in layers1:
         for layer2 in layers2:
@@ -160,15 +164,10 @@ def main(config):
                 for gamma in gammas:
                     if layer1 == 2 and layer2 == 2:
                         continue
-                    seed = 2025
-                    torch.manual_seed(seed)
-                    torch.cuda.manual_seed(seed)
-                    np.random.seed(seed)
-                    random.seed(seed)
 
                     learning_rate = 0.00005
                     batch_size = 256 * 4
-                    epochs = 200
+                    epochs = 400
                     all_accuracy_dict = {}
                     is_cuda = torch.cuda.is_available()
                     if is_cuda:
@@ -194,6 +193,11 @@ def main(config):
                     print(subName)
 
                     for n_subName in subName:
+                        seed = 2000
+                        torch.manual_seed(seed)
+                        torch.cuda.manual_seed(seed)
+                        np.random.seed(seed)
+                        random.seed(seed)
                         print('Subject:', n_subName)
                         y_train = []
                         y_test = []
@@ -319,7 +323,8 @@ def main(config):
                         dataset_test = TensorDataset(four_parts_test, y_test)
                         test_dl = DataLoader(dataset_test, batch_size=batch_size)
 
-                        best_accuracy_for_each_subject = 0
+                        best_accuracy_for_each_subject = -1
+                        best_metric_sum = -1
                         best_each_subject_pred = []
                         best_epoch = 0
                         best_matrix = []
@@ -330,7 +335,6 @@ def main(config):
                                 train_loss = 0.0
                                 num_train_correct = 0
                                 num_train_examples = 0
-                                matrix = []
 
                                 for batch in train_dl:
                                     optimizer.zero_grad()
@@ -347,6 +351,7 @@ def main(config):
                                     num_train_examples += x.shape[0]
 
                             model.eval()
+                            matrix = []
                             val_loss = 0.0
                             num_val_correct = 0
                             num_val_examples = 0
@@ -368,11 +373,16 @@ def main(config):
                             val_loss = val_loss / len(test_dl.dataset)
                             print("[Epoch %d] Validation accuracy:%.4f. Loss:%.3f" % (epoch, val_acc, val_loss))
 
-                            temp_best_each_subject_pred = []
-                            if best_accuracy_for_each_subject < val_acc:
+                            # Prefer higher UF1 + UAR when validation ACC is tied.
+                            epoch_pred = [row[0] for row in matrix]
+                            epoch_uf1, epoch_uar = recognition_evaluation(y_test.tolist(), epoch_pred)
+                            epoch_metric_sum = epoch_uf1 + epoch_uar
+                            if (val_acc > best_accuracy_for_each_subject
+                                    or (val_acc == best_accuracy_for_each_subject
+                                        and epoch_metric_sum > best_metric_sum)):
                                 best_accuracy_for_each_subject = val_acc
-                                temp_best_each_subject_pred.extend(torch.max(yhat, 1)[1].tolist())
-                                best_each_subject_pred = temp_best_each_subject_pred
+                                best_metric_sum = epoch_metric_sum
+                                best_each_subject_pred = epoch_pred.copy()
                                 best_matrix = matrix
                                 best_epoch = epoch
                             '''
@@ -400,16 +410,19 @@ def main(config):
                                         best_matrix) + '\n')
 
                         # For UF1 and UAR computation
+                        with open(os.path.join('.', 'results', str(gamma)+'_'+str(layer1)+'_'+str(layer2)+'_'+str(layer3), str(n_subName) + '_acc.txt'), 'a') as f:
+                            f.write(format_metrics(y_test.tolist(), best_each_subject_pred))
+
                         print('Best Predicted    :', best_each_subject_pred)
                         accuracydict = {}
                         accuracydict['pred'] = best_each_subject_pred
-                        accuracydict['truth'] = y.tolist()
+                        accuracydict['truth'] = y_test.tolist()
                         all_accuracy_dict[n_subName] = accuracydict
 
-                        print('Ground Truth :', y.tolist())
+                        print('Ground Truth :', y_test.tolist())
                         print('Evaluation until this subject: ')
-                        total_pred.extend(torch.max(yhat, 1)[1].tolist())
-                        total_gt.extend(y.tolist())
+                        total_pred.extend(epoch_pred)
+                        total_gt.extend(y_test.tolist())
                         best_total_pred.extend(best_each_subject_pred)
 
                         best_UF1, best_UAR = recognition_evaluation(total_gt, best_total_pred, show=True)
@@ -521,7 +534,8 @@ def main(config):
                     summary_txt = os.path.join('.', 'results', 'result_summary.txt')
                     with open(summary_txt, 'a') as f:
                         f.write(
-                            f'gamma={gamma}, layer1={layer1}, layer2={layer2}, layer3={layer3} | UF1={uf1_alls[0]:.4f}, UAR={uar_alls[0]:.4f}\n')
+                            f'gamma={gamma}, layer1={layer1}, layer2={layer2}, layer3={layer3} | '
+                            + format_metrics(total_gt, best_total_pred))
 
 
 
